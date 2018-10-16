@@ -19,19 +19,19 @@ public class TestRPNCalculator {
 		calculator = new RPNCalculator();
 	}
 	
-	public static void assertEqualCollections(Stack<String> expected, List<Object> actual) {
-		if (expected.size() != actual.size()) fail();
+	public static void assertEqualCollections(List<String> expected, List<Object> actual) {
+		if (expected.size() != actual.size()) fail("Sizes not equal "+expected.size() + "!=" + actual.size());
 		
 		for (int i = 0; i < expected.size(); i++) {
 			String exp = expected.get(i).toString();
 			String act = actual.get(i).toString();
 			
 			if (RPNCalculator.ALLOPERATIONS.contains(exp) || RPNCalculator.ALLOPERATIONS.contains(act)) {
-				assertEquals(exp, act);
+				assertEquals(exp+"!="+act,exp, act);
 			} else {
 				double expD = Double.parseDouble(exp);
 				double actD = Double.parseDouble(act);
-				assertEquals(expD, actD, 0.00000001);
+				assertEquals(expD+"!="+actD, expD, actD, 0.00000001);
 			}
 			
 			
@@ -44,6 +44,14 @@ public class TestRPNCalculator {
 		assertEqualCollections(calculator, Arrays.asList(new Object[]{5, 2}));
 	}
 	
+	// ev = [] res = 2 sqrt,					i = 0	
+	// ev = 1.4142135623 res = []				i = 0
+	// ev = 1.4142135623 res = clear 9 sqrt,	i = 0
+	// ev = [] res = 9 sqrt,	i = 0			i = 0
+	// ev = [9] res = sqrt
+	// ev = [3] res = []
+	
+	// ev = 
 	@Test
 	public void example2() {
 		calculator.exec("2 sqrt");
@@ -62,7 +70,6 @@ public class TestRPNCalculator {
 		assertEquals(0, calculator.size());
 	}
 	
-	@Ignore
 	@Test
 	public void example4() {
 		calculator.exec("5 4 3 2");
@@ -104,11 +111,12 @@ public class TestRPNCalculator {
 	}
 	
 	
-	
-	//1 2 3 * 5 + * * 6 5
-	//1 6 5 + * * 6 5
-	//1 11 * * 6 5
-	//11 * 6 5
+	//
+	//ev = []    res = 1 2 3 * 5 + * * 6 5 	, i = 0
+	//ev = 1 6 5 res = + * * 6 5			, i = 1
+	//ev = 1 11  res =* * 6 5				, i = 0
+	//ev = 11    res =* 6 5					, i = 0 cannot do
+	//ev = 11
 	//@Ignore
 	@Test
 	public void example8() {
