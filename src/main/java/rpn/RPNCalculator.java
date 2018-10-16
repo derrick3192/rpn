@@ -33,12 +33,7 @@ public class RPNCalculator extends ArrayList<String> {
 	}
 	
 	public void exec(List<String> array, String expr) {
-		if (isFirstExecut) {
-			isFirstExecut = false;
-			eval(new ArrayList<>(), new ArrayList<>(array), expr);
-		} else {
-			eval(new ArrayList<>(this), new ArrayList<>(array), expr);
-		}
+		eval(new ArrayList<>(this), new ArrayList<>(array), expr);
 	}
 
 	public void eval(List<String> ev, List<String> res, String expr) {
