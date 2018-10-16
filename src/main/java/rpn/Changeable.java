@@ -1,5 +1,6 @@
 package rpn;
 
+import java.util.List;
 
 public interface Changeable {
 
@@ -11,7 +12,7 @@ public interface Changeable {
 
 	 */
 
-	public void undo();
+	public void undo(List<String> ev);
 
 	
 }

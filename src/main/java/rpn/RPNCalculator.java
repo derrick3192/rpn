@@ -8,13 +8,14 @@ import java.util.List;
 
 public class RPNCalculator extends ArrayList<String> {
 	
+	boolean isFirstExecut = false;
+	
 	private static final long serialVersionUID = 1L;
 
 	public static final String CLEAR = "clear";
 	public static final String UNDO = "undo";
 	public static final String SQRT = "sqrt";
 	public static final List<String> BINARYOPERAIONS = Arrays.asList(new String[]{"+", "-", "*", "/"});
-	
 	
 	public static final List<String> ALLOPERATIONS = new ArrayList<>();
 	static {
@@ -32,14 +33,15 @@ public class RPNCalculator extends ArrayList<String> {
 	}
 	
 	public void exec(List<String> array, String expr) {
-		this.addAll(array);
-		eval(new ArrayList<>(), this, expr);
+		if (isFirstExecut) {
+			isFirstExecut = false;
+			eval(new ArrayList<>(), new ArrayList<>(array), expr);
+		} else {
+			eval(new ArrayList<>(this), new ArrayList<>(array), expr);
+		}
 	}
-	
 
-	// if false all operations have been completed
 	public void eval(List<String> ev, List<String> res, String expr) {
-		
 		
 		if (res.size() == 0){
 			this.clear();
@@ -51,14 +53,14 @@ public class RPNCalculator extends ArrayList<String> {
 		
 		if (isDouble(t)) {
 			ev.add(t);
-			undos.add(new AddNumberChangeable(ev));
+			undos.add(new AddNumberChangeable());
 		} else if (t.equals(CLEAR)) {
 			ev.clear();
-			undos.add(new AddNumberChangeable(ev));
+			undos.add(new AddNumberChangeable());
 		} else if (t.equals(SQRT)) {
 			String y = ev.remove(ev.size() - 1);
 			res.add(Math.sqrt(Double.parseDouble(y))+"");
-			undos.add(new UniaryChangeable(ev, y));
+			undos.add(new UniaryChangeable(y));
 		} else if ( BINARYOPERAIONS.contains(t) && ev.size() < 2) {
 			System.out.println("operator "+t+" (position: TODO): insucient parameters"); // TODO position error
 			eval(ev, new ArrayList<>(), expr);
@@ -88,14 +90,14 @@ public class RPNCalculator extends ArrayList<String> {
 			default:
 				throw new RuntimeException("does not support operation");
 			}
-			undos.add(new BinaryChangeable(ev, xStr, yStr));
+			undos.add(new BinaryChangeable(xStr, yStr));
 			ev.add(result+"");
 		} else if (UNDO.equals(t)) {
 			if (undos.size() == 0) {
 				System.out.println("cannot undo - skipping");
 			}
 			Changeable undo = undos.remove(undos.size() - 1);
-			undo.undo();
+			undo.undo(ev);
 		} else {
 			System.out.println("Not supported! Ignoring: "+t);
 		}
@@ -130,7 +132,5 @@ public class RPNCalculator extends ArrayList<String> {
 		  return false;
 		}
 	}
-	
-	
 	
 }
