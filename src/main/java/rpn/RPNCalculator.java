@@ -40,13 +40,13 @@ public class RPNCalculator extends ArrayList<Double> {
 	/** exec a String reverse polish notation **/
 	public void exec(String expr) {
 		List<String> array = Arrays.asList(expr.trim().split("[ \t]+"));
-		HashMap<String, Integer> occurance = new HashMap<String, Integer>();
-		ALLOPERATIONS.forEach(o -> occurance.put(o, 0));
-		exec(array, expr, occurance);
+		HashMap<String, Integer> operatorOccurances = new HashMap<String, Integer>();
+		ALLOPERATIONS.forEach(o -> operatorOccurances.put(o, 0));
+		exec(array, expr, operatorOccurances);
 	}
 	
-	public void exec(List<String> array, String expr, Map<String, Integer> occurance) {
-		eval(new ArrayList<>(this), new ArrayList<>(array), expr, occurance);
+	public void exec(List<String> array, String expr, Map<String, Integer> operatorOccurances) {
+		eval(new ArrayList<>(this), new ArrayList<>(array), expr, operatorOccurances);
 	}
 
 	
@@ -57,8 +57,8 @@ public class RPNCalculator extends ArrayList<Double> {
 	    return pos;
 	}
 	
-	public static void printOperatorErrorMessage(String t, String expr, Map<String, Integer> occurance) {
-		int pos = ordinalIndexOf(expr, t, occurance.get(t)) + 1;
+	public static void printOperatorErrorMessage(String t, String expr, Map<String, Integer> operatorOccurances) {
+		int pos = ordinalIndexOf(expr, t, operatorOccurances.get(t)) + 1;
 		System.out.println("operator "+t+" (position: "+pos+"): insucient parameters");
 	}
 	
@@ -67,7 +67,7 @@ public class RPNCalculator extends ArrayList<Double> {
 	 * @param res - symbols to execute
 	 * @param expr - expression
 	 */
-	public void eval(List<Double> ev, List<String> res, String expr, Map<String, Integer> occurance) {
+	public void eval(List<Double> ev, List<String> res, String expr, Map<String, Integer> operatorOccurances) {
 		
 		if (res.size() == 0){
 			this.clear();
@@ -78,7 +78,7 @@ public class RPNCalculator extends ArrayList<Double> {
 		String t = res.remove(0);
 		
 		if (ALLOPERATIONS.contains(t)) {
-			occurance.put(t, occurance.get(t) + 1);
+			operatorOccurances.put(t, operatorOccurances.get(t) + 1);
 		}
 		
 		if (isDouble(t)) {
@@ -89,8 +89,8 @@ public class RPNCalculator extends ArrayList<Double> {
 			undos.add(new AddNumberChangeable());
 		} else if (UNIARYOPERATIONS.contains(t) && ev.size() < 1 ||
 				    BINARYOPERAIONS.contains(t) && ev.size() < 2) {
-			printOperatorErrorMessage(t, expr, occurance);
-			eval(ev, new ArrayList<>(), expr, occurance);
+			printOperatorErrorMessage(t, expr, operatorOccurances);
+			eval(ev, new ArrayList<>(), expr, operatorOccurances);
 			return;
 		} else if (UNIARYOPERATIONS.contains(t)) {
 			double y = ev.remove(ev.size() - 1);
@@ -130,7 +130,7 @@ public class RPNCalculator extends ArrayList<Double> {
 			System.out.println("Not supported! Ignoring: "+t);
 		}
 		
-		eval(ev, res, expr, occurance);
+		eval(ev, res, expr, operatorOccurances);
 	}
 	
 	public static boolean isDouble(String number) {
