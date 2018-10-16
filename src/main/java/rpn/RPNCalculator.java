@@ -65,7 +65,7 @@ public class RPNCalculator extends ArrayList<Double> {
 	
 	public static void printOperatorErrorMessage(String t, String expr, Map<String, Integer> operatorOccurances) {
 		int pos = ordinalIndexOf(expr, t, operatorOccurances.get(t)) + 1;
-		System.out.println("operator "+t+" (position: "+pos+"): insucient parameters");
+		System.out.println("operator "+t+" (position: "+pos+"): insufficient parameters");
 	}
 	
 	public void eval(List<Double> ev, List<String> res, String expr, Map<String, Integer> operatorOccurances) {
