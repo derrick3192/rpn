@@ -121,10 +121,9 @@ public class RPNCalculator extends ArrayList<Double> {
 			}
 			undos.add(new BinaryChangeable(x, y));
 			ev.add(result);
+		} else if (UNDO.equals(t) && undos.size() == 0) {
+			System.out.println("cannot undo - skipping");
 		} else if (UNDO.equals(t)) {
-			if (undos.size() == 0) {
-				System.out.println("cannot undo - skipping");
-			}
 			Changeable undo = undos.remove(undos.size() - 1);
 			undo.undo(ev);
 		} else if (t.isEmpty()) {
