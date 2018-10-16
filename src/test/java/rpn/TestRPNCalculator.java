@@ -1,13 +1,12 @@
 package rpn;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestRPNCalculator {
@@ -19,7 +18,7 @@ public class TestRPNCalculator {
 		calculator = new RPNCalculator();
 	}
 	
-	public static void assertEqualCollections(List<String> expected, List<Object> actual) {
+	public static void assertEqualCollections(List<Double> expected, List<Object> actual) {
 		if (expected.size() != actual.size()) fail("Sizes not equal "+expected.size() + "!=" + actual.size());
 		
 		for (int i = 0; i < expected.size(); i++) {
@@ -33,8 +32,6 @@ public class TestRPNCalculator {
 				double actD = Double.parseDouble(act);
 				assertEquals(expD+"!="+actD, expD, actD, 0.00000001);
 			}
-			
-			
 		}
 	}
 	
@@ -44,14 +41,6 @@ public class TestRPNCalculator {
 		assertEqualCollections(calculator, Arrays.asList(new Object[]{5, 2}));
 	}
 	
-	// ev = [] res = 2 sqrt,					i = 0	
-	// ev = 1.4142135623 res = []				i = 0
-	// ev = 1.4142135623 res = clear 9 sqrt,	i = 0
-	// ev = [] res = 9 sqrt,	i = 0			i = 0
-	// ev = [9] res = sqrt
-	// ev = [3] res = []
-	
-	// ev = 
 	@Test
 	public void example2() {
 		calculator.exec("2 sqrt");
@@ -110,14 +99,6 @@ public class TestRPNCalculator {
 		assertEqualCollections(calculator, Arrays.asList(new Object[]{120}));
 	}
 	
-	
-	//
-	//ev = []    res = 1 2 3 * 5 + * * 6 5 	, i = 0
-	//ev = 1 6 5 res = + * * 6 5			, i = 1
-	//ev = 1 11  res =* * 6 5				, i = 0
-	//ev = 11    res =* 6 5					, i = 0 cannot do
-	//ev = 11
-	//@Ignore
 	@Test
 	public void example8() {
 		calculator.exec("1 2 3 * 5 + * * 6 5");

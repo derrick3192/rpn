@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class RPNCalculator extends ArrayList<String> {
-	
-	boolean isFirstExecut = false;
+public class RPNCalculator extends ArrayList<Double> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -24,19 +24,50 @@ public class RPNCalculator extends ArrayList<String> {
 		ALLOPERATIONS.add(SQRT);
 		ALLOPERATIONS.addAll(BINARYOPERAIONS);
 	}
-
+	
+	public static final List<String> UNIARYOPERATIONS = new ArrayList<>();
+	static {
+		UNIARYOPERATIONS.add(SQRT);
+	}
+	
+	/** true if the first execute **/
+	boolean firstExecut = false;
+	
+	/** stores the changeables for undo functionality **/
 	List<Changeable> undos = new ArrayList<Changeable>();
 	
+	
+	/** exec a String reverse polish notation **/
 	public void exec(String expr) {
 		List<String> array = Arrays.asList(expr.trim().split("[ \t]+"));
-		exec(array, expr);
+		HashMap<String, Integer> occurance = new HashMap<String, Integer>();
+		ALLOPERATIONS.forEach(o -> occurance.put(o, 0));
+		exec(array, expr, occurance);
 	}
 	
-	public void exec(List<String> array, String expr) {
-		eval(new ArrayList<>(this), new ArrayList<>(array), expr);
+	public void exec(List<String> array, String expr, Map<String, Integer> occurance) {
+		eval(new ArrayList<>(this), new ArrayList<>(array), expr, occurance);
 	}
 
-	public void eval(List<String> ev, List<String> res, String expr) {
+	
+	public static int ordinalIndexOf(String str, String substr, int n) {
+	    int pos = str.indexOf(substr);
+	    while (--n > 0 && pos != -1)
+	        pos = str.indexOf(substr, pos + 1);
+	    return pos;
+	}
+	
+	public static void printOperatorErrorMessage(String t, String expr, Map<String, Integer> occurance) {
+		int pos = ordinalIndexOf(expr, t, occurance.get(t)) + 1;
+		System.out.println("operator "+t+" (position: "+pos+"): insucient parameters");
+	}
+	
+	/**
+	 * @param ev - current state
+	 * @param res - symbols to execute
+	 * @param expr - expression
+	 */
+	public void eval(List<Double> ev, List<String> res, String expr, Map<String, Integer> occurance) {
 		
 		if (res.size() == 0){
 			this.clear();
@@ -46,27 +77,29 @@ public class RPNCalculator extends ArrayList<String> {
 		
 		String t = res.remove(0);
 		
+		if (ALLOPERATIONS.contains(t)) {
+			occurance.put(t, occurance.get(t) + 1);
+		}
+		
 		if (isDouble(t)) {
-			ev.add(t);
+			ev.add(Double.parseDouble(t));
 			undos.add(new AddNumberChangeable());
 		} else if (t.equals(CLEAR)) {
 			ev.clear();
 			undos.add(new AddNumberChangeable());
-		} else if (t.equals(SQRT)) {
-			String y = ev.remove(ev.size() - 1);
-			res.add(Math.sqrt(Double.parseDouble(y))+"");
-			undos.add(new UniaryChangeable(y));
-		} else if ( BINARYOPERAIONS.contains(t) && ev.size() < 2) {
-			System.out.println("operator "+t+" (position: TODO): insucient parameters"); // TODO position error
-			eval(ev, new ArrayList<>(), expr);
+		} else if (UNIARYOPERATIONS.contains(t) && ev.size() < 1 ||
+				    BINARYOPERAIONS.contains(t) && ev.size() < 2) {
+			printOperatorErrorMessage(t, expr, occurance);
+			eval(ev, new ArrayList<>(), expr, occurance);
 			return;
+		} else if (UNIARYOPERATIONS.contains(t)) {
+			double y = ev.remove(ev.size() - 1);
+			ev.add(Math.sqrt(y));
+			undos.add(new UniaryChangeable(y));
 		} else if (BINARYOPERAIONS.contains(t)) {
 
-			String yStr = ev.remove(ev.size() - 1);
-			String xStr = ev.remove(ev.size() - 1);
-			
-			double y = Double.parseDouble(yStr);
-			double x = Double.parseDouble(xStr);
+			double y = ev.remove(ev.size() - 1);
+			double x = ev.remove(ev.size() - 1);
 			
 			double result = 0.0;
 			switch (t) {
@@ -85,8 +118,8 @@ public class RPNCalculator extends ArrayList<String> {
 			default:
 				throw new RuntimeException("does not support operation");
 			}
-			undos.add(new BinaryChangeable(xStr, yStr));
-			ev.add(result+"");
+			undos.add(new BinaryChangeable(x, y));
+			ev.add(result);
 		} else if (UNDO.equals(t)) {
 			if (undos.size() == 0) {
 				System.out.println("cannot undo - skipping");
@@ -97,9 +130,21 @@ public class RPNCalculator extends ArrayList<String> {
 			System.out.println("Not supported! Ignoring: "+t);
 		}
 		
-		eval(ev, res, expr);
+		eval(ev, res, expr, occurance);
 	}
-
+	
+	public static boolean isDouble(String number) {
+		try
+		{
+		  Double.parseDouble(number);
+		  return true;
+		}
+		catch(NumberFormatException e)
+		{
+		  return false;
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -114,17 +159,6 @@ public class RPNCalculator extends ArrayList<String> {
 			String rpnStr = rpn.toString();
 			rpnStr = rpnStr.substring(1, rpnStr.length()-1);
 			System.out.println("stack: "+rpnStr);
-		}
-	}
-	public static boolean isDouble(String number) {
-		try
-		{
-		  Double.parseDouble(number);
-		  return true;
-		}
-		catch(NumberFormatException e)
-		{
-		  return false;
 		}
 	}
 	
