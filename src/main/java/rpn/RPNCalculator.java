@@ -45,6 +45,12 @@ public class RPNCalculator extends ArrayList<Double> {
 		exec(array, expr, operatorOccurances);
 	}
 	
+	
+	/**
+	 * @param array current state
+	 * @param expr expression to execute
+	 * @param operatorOccurances keep track of which operation may cause an error for user messaging
+	 */
 	public void exec(List<String> array, String expr, Map<String, Integer> operatorOccurances) {
 		eval(new ArrayList<>(this), new ArrayList<>(array), expr, operatorOccurances);
 	}
@@ -62,11 +68,6 @@ public class RPNCalculator extends ArrayList<Double> {
 		System.out.println("operator "+t+" (position: "+pos+"): insucient parameters");
 	}
 	
-	/**
-	 * @param ev - current state
-	 * @param res - symbols to execute
-	 * @param expr - expression
-	 */
 	public void eval(List<Double> ev, List<String> res, String expr, Map<String, Integer> operatorOccurances) {
 		
 		if (res.size() == 0){
@@ -126,6 +127,8 @@ public class RPNCalculator extends ArrayList<Double> {
 			}
 			Changeable undo = undos.remove(undos.size() - 1);
 			undo.undo(ev);
+		} else if (t.isEmpty()) {
+			System.out.println("Empty string! Ignoring:");
 		} else {
 			System.out.println("Not supported! Ignoring: "+t);
 		}
